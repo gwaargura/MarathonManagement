@@ -1,0 +1,61 @@
+﻿@model IEnumerable<MM_client.Models.ReadUserDTO>
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 bg-light border-end" style="min-height: 100vh;">
+            <h4 class="mt-3">Admin Panel</h4>
+            <hr />
+            <ul class="nav flex-column">
+                <li class="nav-item mb-2">
+                    <button class="btn btn-outline-primary w-100" onclick="loadSection('Users')">
+                        👤 Users
+                    </button>
+                </li>
+                <li class="nav-item mb-2">
+                    <button class="btn btn-outline-primary w-100" onclick="loadSection('Marathons')">
+                        🏃‍♂️ Marathons
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9 col-lg-10 p-4">
+            <div id="content-area">
+                @await Html.PartialAsync("_UsersPartial", Model)
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+                async function loadSection(section) {
+            const content = document.getElementById("content-area");
+
+            let url = '';
+            if (section === 'Users') {
+                url = '/Admin/UsersPartial';
+            } else if (section === 'Marathons') {
+                url = '/Admin/MarathonsPartial';
+            }
+
+            try {
+                const response = await fetch(url);
+                const html = await response.text();
+                console.log("Loaded HTML for", section, ":", html); // 👈 log it
+                content.innerHTML = html;
+            } catch (err) {
+                console.error("Error loading section:", err);
+                content.innerHTML = `<div class='alert alert-danger'>Failed to load ${section} section.</div>`;
+            }
+        }
+
+    </script>
+}
+

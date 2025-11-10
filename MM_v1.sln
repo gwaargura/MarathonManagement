@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36429.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MM_api", "MM_api\MM_api.csproj", "{FBE6EA0E-AC4D-434D-8B30-3BEF79E8C85C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MM_client", "MM_client\MM_client.csproj", "{E3B18A7B-90F3-456F-A3FD-C670AEA73ED3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FBE6EA0E-AC4D-434D-8B30-3BEF79E8C85C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBE6EA0E-AC4D-434D-8B30-3BEF79E8C85C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBE6EA0E-AC4D-434D-8B30-3BEF79E8C85C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBE6EA0E-AC4D-434D-8B30-3BEF79E8C85C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3B18A7B-90F3-456F-A3FD-C670AEA73ED3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3B18A7B-90F3-456F-A3FD-C670AEA73ED3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3B18A7B-90F3-456F-A3FD-C670AEA73ED3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3B18A7B-90F3-456F-A3FD-C670AEA73ED3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9BF07FEA-EDB1-4461-B015-FDFFB41653DC}
+	EndGlobalSection
+EndGlobal
