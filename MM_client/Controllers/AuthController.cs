@@ -78,7 +78,6 @@ namespace MM_client.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var data = await response.Content.ReadFromJsonAsync<LoginResponse>();
-                TempData["Success"] = "Đăng nhập thành công!";
 
                 // Save JWT and user info into session
                 HttpContext.Session.SetString("AccessToken", data?.AccessToken ?? "");

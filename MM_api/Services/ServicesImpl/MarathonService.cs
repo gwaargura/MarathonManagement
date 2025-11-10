@@ -34,6 +34,7 @@ namespace MM_api.Services.ServicesImpl
         public async Task<ReadMarathonDTO> CreateAsync(CreateMarathonDTO dto)
         {
             var marathon = _mapper.Map<Marathon>(dto);
+            marathon.Status = "Upcoming";
             await _repository.AddAsync(marathon);
             return _mapper.Map<ReadMarathonDTO>(marathon);
         }

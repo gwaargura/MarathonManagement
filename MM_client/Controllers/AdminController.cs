@@ -58,7 +58,7 @@ namespace MM_client.Controllers
             {
                 Email = user.Email,
                 FullName = user.FullName,
-                IsActive = user.IsActive
+                IsActive = user.IsActive ?? false
             };
 
             ViewBag.UserId = user.UserId;
