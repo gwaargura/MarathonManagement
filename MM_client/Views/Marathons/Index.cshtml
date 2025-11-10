@@ -1,0 +1,146 @@
+﻿@{
+    Layout = "_Layout";
+}
+@model MM_client.Models.MarathonIndexViewModel
+
+@{
+    ViewData["Title"] = "Tất cả giải đấu";
+    var role = Context.Session.GetString("Role");
+    var userId = Context.Session.GetString("UserId");
+}
+
+<style>
+    .card-img-top {
+        width: 100%;
+        height: 150px; /* fixed height */
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+    }
+
+        .card-img-top img {
+            height: 100%;
+            width: auto; /* maintain original aspect ratio */
+            object-fit: contain; /* no cropping, image fully visible */
+            object-position: center; /* center it */
+        }
+
+
+    .my-marathons-scroll {
+        display: flex;
+        overflow-x: auto;
+        gap: 1rem;
+        padding-bottom: 10px;
+        scroll-behavior: smooth;
+    }
+
+    .my-marathons-scroll::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .my-marathons-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+    }
+
+    .marathon-card {
+        flex: 0 0 auto;
+        width: 250px;
+        min-height: 350px;
+    }
+</style>
+
+<div class="container mt-4">
+
+    <!-- Organizer Tools -->
+    @if (!string.IsNullOrEmpty(role) && role.ToLower() == "organizer")
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Quản lý giải đấu</h2>
+            <a asp-controller="Marathons" asp-action="Create" class="btn btn-primary">
+                + Tạo giải đấu
+            </a>
+        </div>
+
+        <hr />
+
+        <!-- My Marathons Section -->
+        <section class="mb-5">
+            <h3 class="mb-3 fw-bold">Giải đấu của tôi</h3>
+
+            @if (Model.MyMarathons != null && Model.MyMarathons.Any())
+            {
+                <div class="my-marathons-scroll">
+                    @foreach (var m in Model.MyMarathons)
+                    {
+                        <div class="card marathon-card shadow-sm border-0">
+                            <div class="card-img-top bg-info text-white d-flex align-items-center justify-content-center rounded-top"
+                                 style="height: 150px;">
+                                <img src="@m.ThumbnailLink" alt="Ảnh giải đấu" />
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title fw-semibold text-truncate">@m.MarathonName</h5>
+                                <p class="card-text small mb-1"><strong>Ngày:</strong> @m.StartDate.ToShortDateString()</p>
+                                <p class="card-text small mb-1"><strong>Địa điểm:</strong> @(m.Location ?? "Chưa cập nhật")</p>
+                                <p class="card-text small mb-1"><strong>Tối đa:</strong> @(m.MaxParticipants?.ToString() ?? "Không giới hạn")</p>
+                                <p class="card-text small mb-0"><strong>Phí:</strong> @m.RegistrationFee.ToString("N0") đ</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 text-center pb-3">
+                                <a asp-action="Details" asp-route-id="@m.MarathonId" class="btn btn-outline-primary btn-sm">Chi tiết</a>
+                                <a asp-action="Edit" asp-route-id="@m.MarathonId" class="btn btn-outline-secondary btn-sm">Chỉnh sửa</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">Bạn chưa tạo giải đấu nào.</p>
+            }
+        </section>
+    }
+
+    <!-- All Marathons -->
+    <section>
+        <h3 class="mb-4 fw-bold">Tất cả các giải đấu</h3>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+
+        <div class="row g-4">
+            @if (Model.AllMarathons != null && Model.AllMarathons.Any())
+            {
+                foreach (var m in Model.AllMarathons)
+                {
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card shadow-sm h-100 border-0">
+                            <div class="card-img-top bg-primary text-white d-flex align-items-center justify-content-center rounded-top"
+                                 style="height: 150px;">
+                                <img src="@m.ThumbnailLink" alt="Ảnh giải đấu"/>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title fw-semibold text-truncate">@m.MarathonName</h5>
+                                <p class="card-text small mb-1"><strong>Ngày:</strong> @m.StartDate.ToShortDateString()</p>
+                                <p class="card-text small mb-1"><strong>Địa điểm:</strong> @(m.Location ?? "Chưa cập nhật")</p>
+                                <p class="card-text small mb-1"><strong>Số người tham gia:</strong> @(m.MaxParticipants?.ToString() ?? "Không giới hạn")</p>
+                                <p class="card-text small mb-0"><strong>Giá vé:</strong> @m.RegistrationFee.ToString("N0") đ</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 text-center pb-3">
+                                <a asp-controller="Marathons" asp-action="Details" asp-route-id="@m.MarathonId"
+                                   class="btn btn-outline-primary btn-sm px-3">Xem chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted text-center">Không có giải đấu nào.</p>
+            }
+        </div>
+    </section>
+</div>

@@ -1,0 +1,33 @@
+﻿@model IEnumerable<MM_client.Models.ReadMarathonDTO>
+
+<h3>Marathons</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Active</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.MarathonId</td>
+                <td>@m.MarathonName</td>
+                <td>@m.Location</td>
+                <td>@m.StartDate.ToString("yyyy-MM-dd")</td>
+                <td>@m.EndDate.ToString("yyyy-MM-dd")</td>
+                <td>@(m.Status)</td>
+                <td>
+                    <a href="@Url.Action("EditMarathon", "Admin", new { id = m.MarathonId })" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

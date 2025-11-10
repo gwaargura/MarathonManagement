@@ -1,0 +1,33 @@
+﻿@model MM_client.Models.UpdateUserDTO
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<h2>Edit User - @ViewBag.Username</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<form asp-action="EditUser" method="post" asp-route-id="@ViewBag.UserId">
+    <div class="form-group mb-3">
+        <label>Email</label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div class="form-group mb-3">
+        <label>Full Name</label>
+        <input asp-for="FullName" class="form-control" />
+    </div>
+    <div class="form-group mb-3">
+        <label>Active</label>
+        <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+    </div>
+    <div class="form-group mb-3">
+        <label>New Password (optional)</label>
+        <input asp-for="PasswordHash" type="password" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="@Url.Action("Dashboard", "Admin")" class="btn btn-secondary">Back</a>
+</form>

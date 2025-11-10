@@ -1,0 +1,35 @@
+﻿@model IEnumerable<MM_client.Models.ReadUserDTO>
+
+<h3>Users</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>UserId</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Full Name</th>
+            <th>Role</th>
+            <th>Active</th>
+            <th>Created</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserId</td>
+                <td>@user.Username</td>
+                <td>@user.Email</td>
+                <td>@user.FullName</td>
+                <td>@user.RoleId</td>
+                <td>@(user.IsActive == true ? "✅" : "❌")</td>
+                <td>@user.CreatedAt?.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <a href="@Url.Action("EditUser", "Admin", new { id = user.UserId })" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

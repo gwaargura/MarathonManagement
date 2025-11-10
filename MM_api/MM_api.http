@@ -1,0 +1,6 @@
+@MM_api_HostAddress = http://localhost:5113
+
+GET {{MM_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
