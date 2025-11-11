@@ -47,5 +47,11 @@ namespace MM_api.Services.ServicesImpl
         {
             await _repository.SoftDeleteAsync(id);
         }
+
+        public async Task<ReadRegistrationDTO?> GetByIdUserAndMarathonAsync(int userId, int marathonId)
+        {
+            var registration = await _repository.GetByIdUserAndMarathonAsync(userId, marathonId);
+            return _mapper.Map<ReadRegistrationDTO>(registration);
+        }
     }
 }

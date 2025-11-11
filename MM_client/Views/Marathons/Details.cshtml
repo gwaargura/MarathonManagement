@@ -23,6 +23,12 @@
                 Đăng ký tham gia
             </button>
         </form>
+        @if (TempData["Error"] != null){
+                if (TempData["Error"].Equals("Bạn đã đăng ký giải đấu này rồi."))
+                {
+                    <p>@TempData["Error"]</p>
+                }
+        }
     </div>
 
     <h3 style="margin-top:40px;">Bản đồ lộ trình</h3>

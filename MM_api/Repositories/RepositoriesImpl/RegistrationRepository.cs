@@ -54,5 +54,12 @@ namespace MM_api.Repositories.RepositoriesImpl
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<Registration?> GetByIdUserAndMarathonAsync(int userId, int marathonId)
+        {
+            return await _context.Registrations
+                .Where(r => r.UserId == userId && r.MarathonId == marathonId)
+                .FirstOrDefaultAsync(r => r.IsDeleted == null || r.IsDeleted == false);
+        }
     }
 }

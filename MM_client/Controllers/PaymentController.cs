@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MM_client.Models;
@@ -25,6 +26,12 @@ namespace MM_client.Controllers
 
         public IActionResult Index()
         {
+            var token = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "Vui lòng đăng nhập trước khi đăng ký.";
+                return RedirectToAction("Login", "Auth");
+            }
             return View();
         }
 
@@ -32,23 +39,25 @@ namespace MM_client.Controllers
         public async Task<IActionResult> Register(int marathonId)
         {
 
-            string accessKey = "F8BBA842ECF85";
-            string secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+            try
+            {
+                string accessKey = "F8BBA842ECF85";
+                string secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
 
-            _request.orderId = marathonId + "";
-            _request.orderInfo = $"Order [{_request.orderId}]";
+                _request.orderId = Guid.NewGuid().ToString(); ;
+                _request.orderInfo = $"Order [{_request.orderId}]";
 
-            var response = await _httpClient.GetAsync($"{_baseUrl}/api/Marathons/{marathonId}");
-            if (!response.IsSuccessStatusCode)
-                return RedirectToAction("Marathon");
+                var response = await _httpClient.GetAsync($"{_baseUrl}/api/Marathons/{marathonId}");
+                if (!response.IsSuccessStatusCode)
+                    return RedirectToAction("Marathon");
 
-            var json = await response.Content.ReadAsStringAsync();
+                var json = await response.Content.ReadAsStringAsync();
 
-            var marathon = JsonSerializer.Deserialize<ReadMarathonDTO>(json,
-               new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var marathon = JsonSerializer.Deserialize<ReadMarathonDTO>(json,
+                   new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            _request.amount = (long)(marathon.RegistrationFee);
-            _request.Items = new List<MoMoItem>
+                _request.amount = (long)(marathon.RegistrationFee);
+                _request.Items = new List<MoMoItem>
             {
                 new MoMoItem
                 {
@@ -58,105 +67,123 @@ namespace MM_client.Controllers
                 }
             };
 
-            _request.lang = "vi";
+                _request.lang = "vi";
 
-            var response1 = await _httpClient.GetAsync($"{_baseUrl}/api/Users/{HttpContext.Session.GetString("UserId")}");
-            if (!response1.IsSuccessStatusCode)
-                return RedirectToAction("Marathon");
+                var response1 = await _httpClient.GetAsync($"{_baseUrl}/api/Users/{HttpContext.Session.GetString("UserId")}");
+                if (!response1.IsSuccessStatusCode)
+                    return RedirectToAction("Marathon");
 
-            var json1 = await response.Content.ReadAsStringAsync();
+                var json1 = await response.Content.ReadAsStringAsync();
 
-            var userInfo = JsonSerializer.Deserialize<ReadUserDTO>(json1,
-               new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var userInfo = JsonSerializer.Deserialize<ReadUserDTO>(json1,
+                   new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
 
 
-            _request.UserInfo = new MoMoUserInfo { Name = userInfo.FullName, PhoneNumber = "0979268444", Address = userInfo.Email };
-            _request.partnerCode = "MOMO";
-            _request.redirectUrl = "http://localhost:7269/Payment/Result";
-            _request.ipnUrl = "localhost:7269/Payment/Result";
-            _request.requestId = _request.orderId;
-            _request.requestType = "payWithMethod";
-            _request.extraData = "";
-            _request.storeId = "Marathon Management";
-            _request.autoCapture = true;
-            //_request.amount = 1000;
+                _request.UserInfo = new MoMoUserInfo { Name = userInfo.FullName, PhoneNumber = "0979268444", Address = userInfo.Email };
+                _request.partnerCode = "MOMO";
+                _request.redirectUrl = "http://localhost:7269/Payment/Result";
+                _request.ipnUrl = "localhost:5000/Payment/Result";
+                _request.requestId = _request.orderId;
+                _request.requestType = "payWithMethod";
+                _request.extraData = "";
+                _request.storeId = "Marathon Management";
+                _request.autoCapture = true;
+                //_request.amount = 1000;
 
-            var rawSignature = "accessKey=" + accessKey
-                + "&amount=" + _request.amount
-                + "&extraData=" + _request.extraData
-                + "&ipnUrl=" + _request.ipnUrl
-                + "&orderId=" + _request.orderId
-                + "&orderInfo=" + _request.orderInfo
-                + "&partnerCode=" + _request.partnerCode
-                + "&redirectUrl=" + _request.redirectUrl
-                + "&requestId=" + _request.requestId
-                + "&requestType=" + _request.requestType;
-            _request.signature = getSignature(rawSignature, secretKey);
+                var rawSignature = "accessKey=" + accessKey
+                    + "&amount=" + _request.amount
+                    + "&extraData=" + _request.extraData
+                    + "&ipnUrl=" + _request.ipnUrl
+                    + "&orderId=" + _request.orderId
+                    + "&orderInfo=" + _request.orderInfo
+                    + "&partnerCode=" + _request.partnerCode
+                    + "&redirectUrl=" + _request.redirectUrl
+                    + "&requestId=" + _request.requestId
+                    + "&requestType=" + _request.requestType;
+                _request.signature = getSignature(rawSignature, secretKey);
 
-            StringContent httpContent = new StringContent(JsonSerializer.Serialize(_request), System.Text.Encoding.UTF8, "application/json");
-            var quickPayResponse = await client.PostAsync("https://test-payment.momo.vn/v2/gateway/api/create", httpContent);
-            var contentsString = await quickPayResponse.Content.ReadAsStringAsync();
+                StringContent httpContent = new StringContent(JsonSerializer.Serialize(_request), System.Text.Encoding.UTF8, "application/json");
+                var quickPayResponse = await client.PostAsync("https://test-payment.momo.vn/v2/gateway/api/create", httpContent);
+                var contentsString = await quickPayResponse.Content.ReadAsStringAsync();
 
-            //Console.WriteLine("-----------------------------------------------------------------");
-            //Console.WriteLine(contentsString);
-            //Console.WriteLine("-----------------------------------------------------------------");
+                Console.WriteLine("-----------------------------------------------------------------");
+                Console.WriteLine(contentsString);
+                Console.WriteLine("-----------------------------------------------------------------");
 
-            var response2 = JsonSerializer.Deserialize<PaymentResult>(contentsString);
+                var response2 = JsonSerializer.Deserialize<PaymentResult>(contentsString);
 
-            if (response2 == null)
+                if (response2 == null)
+                {
+                    TempData["error"] = "Không thể tạo link thanh toán";
+                    return View("Index");
+                }
+                var checkResponse = await _httpClient.GetAsync($"{_baseUrl}/api/registrations/{HttpContext.Session.GetString("UserId")}/{marathonId}");
+                if (checkResponse.IsSuccessStatusCode)
+                {
+                    var checkContent = await checkResponse.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrEmpty(checkContent) && checkContent != "null")
+                    {
+                        TempData["Error"] = "Bạn đã đăng ký giải đấu này rồi.";
+                        return RedirectToAction("Details", "Marathons", new { id = marathonId });
+                    }
+                }
+                if (response2.ResultCode == 0)
+                {
+                    var token = HttpContext.Session.GetString("AccessToken");
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        TempData["Error"] = "Vui lòng đăng nhập trước khi đăng ký.";
+                        return RedirectToAction("Login", "Auth");
+                    }
+
+                    // Decode JWT to get user ID
+                    var handler = new JwtSecurityTokenHandler();
+                    var jwt = handler.ReadJwtToken(token);
+                    var userIdClaim = jwt.Claims.FirstOrDefault(c => c.Type == "AccountId");
+
+                    if (userIdClaim == null)
+                    {
+                        TempData["Error"] = "Không thể xác định người dùng từ token.";
+                        return RedirectToAction("Login", "Auth");
+                    }
+
+                    int userId = int.Parse(userIdClaim.Value);
+
+                    // Attach JWT to request
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                    var registration = new
+                    {
+                        UserId = userId,
+                        MarathonId = marathonId,
+                        Status = "Pending"
+                    };
+
+                    var response3 = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/registrations", registration);
+
+                    if (response3.IsSuccessStatusCode)
+                    {
+                        TempData["Success"] = "Đăng ký thành công!";
+                    }
+                    else
+                    {
+                        var errorMsg = await response3.Content.ReadAsStringAsync();
+                        TempData["Error"] = $"Không thể đăng ký: {response3.StatusCode} - {errorMsg}";
+                    }
+                }
+                TempData["message"] = "Giao dịch của bạn đang được xử lý, nếu bạn không tự động được chuyển đến trang thanh toán, vui lòng nhấn vào đường dẫn.";
+                TempData["payUrl"] = response2.PayUrl;
+                Console.Write("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                Console.Write(response2.PayUrl);
+                Console.Write(response2.ToString());
+                TempData.Keep("payUrl");
+                return RedirectToAction("Index");
+            } catch (Exception ex)
             {
-                TempData["error"] = "Không thể tạo link thanh toán";
+                TempData["error"] = "Không thể đăng ký vì bạn đã đăng ký giải đấu rồi";
                 return View("Index");
             }
-
-            if (response2.ResultCode == 0)
-            {
-                var token = HttpContext.Session.GetString("AccessToken");
-                if (string.IsNullOrEmpty(token))
-                {
-                    TempData["Error"] = "Vui lòng đăng nhập trước khi đăng ký.";
-                    return RedirectToAction("Login", "Auth");
-                }
-
-                // Decode JWT to get user ID
-                var handler = new JwtSecurityTokenHandler();
-                var jwt = handler.ReadJwtToken(token);
-                var userIdClaim = jwt.Claims.FirstOrDefault(c => c.Type == "AccountId");
-
-                if (userIdClaim == null)
-                {
-                    TempData["Error"] = "Không thể xác định người dùng từ token.";
-                    return RedirectToAction("Login", "Auth");
-                }
-
-                int userId = int.Parse(userIdClaim.Value);
-
-                // Attach JWT to request
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                var registration = new
-                {
-                    UserId = userId,
-                    MarathonId = marathonId,
-                    Status = "Pending"
-                };
-
-                var response3 = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/registrations", registration);
-
-                if (response3.IsSuccessStatusCode)
-                {
-                    TempData["Success"] = "Đăng ký thành công!";
-                }
-                else
-                {
-                    var errorMsg = await response3.Content.ReadAsStringAsync();
-                    TempData["Error"] = $"Không thể đăng ký: {response3.StatusCode} - {errorMsg}";
-                }
-            }
-            TempData["message"] = "Giao dịch của bạn đang được xử lý, nếu bạn không tự động được chuyển đến trang thanh toán, vui lòng nhấn vào đường dẫn.";
-            TempData["payUrl"] = response2.PayUrl;
-            return RedirectToAction("Index");
         }
 
         [HttpGet]

@@ -28,9 +28,15 @@ namespace MM_api.Controllers
             if (result == null) return NotFound();
             return Ok(result);
         }
-
+        [HttpGet("{userId}/{marathonId}")]
+        public async Task<IActionResult> GetByIdUserAndMarathon(int userId, int marathonId)
+        {
+            var result = await _service.GetByIdUserAndMarathonAsync(userId, marathonId);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
         [HttpPost]
-        public async Task<IActionResult> Create(CreateRegistrationDTO dto)
+        public async Task<IActionResult> Create([FromBody] CreateRegistrationDTO dto)
         {
             await _service.CreateAsync(dto);
             return Ok(new { message = "Registration created successfully" });
